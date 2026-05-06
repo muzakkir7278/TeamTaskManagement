@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team Task Management</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">TT</span>
+          <div>
+            <h1>Team Tasks</h1>
+            <p>Projects, people, progress</p>
+          </div>
+        </div>
+
+        <section id="auth-panel" class="panel auth-panel">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-auth-tab="login">Login</button>
+            <button class="tab" data-auth-tab="signup">Signup</button>
+          </div>
+
+          <form id="login-form" class="stack">
+            <label>Email<input name="email" type="email" value="admin@example.com" required></label>
+            <label>Password<input name="password" type="password" value="Password123!" required></label>
+            <button type="submit" class="primary">Login</button>
+          </form>
+
+          <form id="signup-form" class="stack hidden">
+            <label>Name<input name="name" autocomplete="name" required></label>
+            <label>Email<input name="email" type="email" autocomplete="email" required></label>
+            <label>Password<input name="password" type="password" minlength="8" required></label>
+            <button type="submit" class="primary">Create account</button>
+          </form>
+        </section>
+
+        <section id="session-panel" class="panel hidden">
+          <div class="user-row">
+            <div class="avatar" id="user-avatar"></div>
+            <div>
+              <strong id="user-name"></strong>
+              <span id="user-email"></span>
+            </div>
+          </div>
+          <button id="logout-button" class="ghost">Logout</button>
+        </section>
+
+        <section id="project-panel" class="panel hidden">
+          <div class="section-title">
+            <h2>Projects</h2>
+            <button id="new-project-button" class="icon-button" title="Create project">+</button>
+          </div>
+          <div id="project-list" class="project-list"></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div id="empty-state" class="empty-state">
+          <h2>Sign in to manage projects and tasks</h2>
+          <p>Create a project, add teammates, assign tasks, and track work from one dashboard.</p>
+        </div>
+
+        <div id="project-view" class="hidden">
+          <header class="workspace-header">
+            <div>
+              <span id="role-pill" class="role-pill"></span>
+              <h2 id="project-title"></h2>
+              <p id="project-description"></p>
+            </div>
+            <button id="create-task-button" class="primary">New task</button>
+          </header>
+
+          <section class="dashboard-grid" aria-label="Dashboard metrics">
+            <article><span>Total</span><strong id="metric-total">0</strong></article>
+            <article><span>To Do</span><strong id="metric-todo">0</strong></article>
+            <article><span>In Progress</span><strong id="metric-progress">0</strong></article>
+            <article><span>Done</span><strong id="metric-done">0</strong></article>
+            <article><span>Overdue</span><strong id="metric-overdue">0</strong></article>
+          </section>
+
+          <section class="content-grid">
+            <div class="task-area">
+              <div class="section-title">
+                <h2>Tasks</h2>
+                <select id="status-filter" aria-label="Filter tasks by status">
+                  <option value="">All statuses</option>
+                  <option>To Do</option>
+                  <option>In Progress</option>
+                  <option>Done</option>
+                </select>
+              </div>
+              <div id="task-board" class="task-board"></div>
+            </div>
+
+            <aside class="details-area">
+              <section class="panel">
+                <div class="section-title">
+                  <h2>Members</h2>
+                </div>
+                <form id="member-form" class="member-form">
+                  <input name="email" type="email" placeholder="user@example.com" required>
+                  <select name="role">
+                    <option>Member</option>
+                    <option>Admin</option>
+                  </select>
+                  <button class="primary" type="submit">Add</button>
+                </form>
+                <div id="member-list" class="member-list"></div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <h2>Tasks per user</h2>
+                </div>
+                <div id="tasks-per-user" class="bar-list"></div>
+              </section>
+            </aside>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="project-dialog">
+      <form id="project-form" class="dialog-card">
+        <h2>Create project</h2>
+        <label>Name<input name="name" required minlength="3"></label>
+        <label>Description<textarea name="description" rows="3"></textarea></label>
+        <menu>
+          <button type="button" data-close-dialog>Cancel</button>
+          <button class="primary" type="submit">Create</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="task-dialog">
+      <form id="task-form" class="dialog-card">
+        <h2>Create task</h2>
+        <label>Title<input name="title" required minlength="3"></label>
+        <label>Description<textarea name="description" rows="3"></textarea></label>
+        <div class="form-grid">
+          <label>Due date<input name="due_date" type="date" required></label>
+          <label>Priority
+            <select name="priority">
+              <option>Medium</option>
+              <option>High</option>
+              <option>Low</option>
+            </select>
+          </label>
+        </div>
+        <label>Assignee<select name="assignee_id" id="assignee-select"></select></label>
+        <menu>
+          <button type="button" data-close-dialog>Cancel</button>
+          <button class="primary" type="submit">Create</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
