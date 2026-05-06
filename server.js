@@ -2,11 +2,13 @@ import http from 'node:http';
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import crypto from 'node:crypto';
+import Database from 'better-sqlite3';
 
 const PORT = Number(process.env.PORT || 3000);
+const HOST = process.env.HOST || '0.0.0.0';
 const ROOT = resolve('.');
 const PUBLIC_DIR = join(ROOT, 'public');
-const DATA_DIR = join(ROOT, 'data');
+const DATA_DIR = process.env.DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || join(ROOT, 'data');
 const DB_PATH = join(DATA_DIR, 'app.db');
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'local-dev-secret-change-before-deploy';
 
@@ -17,6 +19,9 @@ if (resetDatabase && existsSync(DB_PATH)) {
 }
 
 mkdirSync(DATA_DIR, { recursive: true });
+const db = new Database(DB_PATH);
+db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 initializeDatabase();
 
 if (resetDatabase) {
@@ -40,8 +45,19 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log(`Team Task Management running at http://localhost:${PORT}`);
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use. Stop the old server or run with PORT=3001 npm start.`);
+    process.exit(1);
+  }
+
+  console.error('Server failed to start:', error);
+  process.exit(1);
+});
+
+server.listen(PORT, HOST, () => {
+  const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+  console.log(`Team Task Management running at http://${displayHost}:${PORT}`);
 });
 
 async function routeApi(req, res, url) {
@@ -54,6 +70,10 @@ async function routeApi(req, res, url) {
 
   if (method === 'POST' && path === '/api/auth/login') {
     return login(req, res);
+  }
+
+  if (method === 'GET' && path === '/api/health') {
+    return sendJson(res, 200, { ok: true, service: 'team-task-management' });
   }
 
   const user = authenticate(req);
@@ -621,10 +641,6 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(hash));
 }
 
-import Database from 'better-sqlite3';
-
-const db = new Database(DB_PATH);
-
 function queryAll(sql, params = []) {
   return db.prepare(sql).all(...params);
 }
@@ -635,17 +651,6 @@ function queryOne(sql, params = []) {
 
 function run(sql, params = []) {
   return db.prepare(sql).run(...params);
-}
-
-function bind(sql, params) {
-  let index = 0;
-  return sql.replaceAll('?', () => literal(params[index++]));
-}
-
-function literal(value) {
-  if (value === null || value === undefined) return 'NULL';
-  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : 'NULL';
-  return `'${String(value).replaceAll("'", "''")}'`;
 }
 
 async function readBody(req) {
