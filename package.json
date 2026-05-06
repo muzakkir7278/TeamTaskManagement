@@ -9,6 +9,12 @@
     "dev": "node server.js",
     "reset-db": "node server.js --reset-db"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
+  },
   "keywords": [
     "task-management",
     "projects",
@@ -16,8 +22,5 @@
     "rest-api"
   ],
   "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "better-sqlite3": "^12.9.0"
-  }
+  "license": "MIT"
 }
