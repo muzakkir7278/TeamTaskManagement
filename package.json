@@ -1,0 +1,23 @@
+{
+  "name": "team-task-management",
+  "version": "1.0.0",
+  "description": "Full-stack team task management web application with authentication, projects, roles, tasks, and dashboard analytics.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "reset-db": "node server.js --reset-db"
+  },
+  "keywords": [
+    "task-management",
+    "projects",
+    "sqlite",
+    "rest-api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.9.0"
+  }
+}
